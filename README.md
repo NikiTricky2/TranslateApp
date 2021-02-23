@@ -1,6 +1,5 @@
 # TranslateApp
-Tkinter translating app using Google Translate
-
+Tkinter translating app using Google Translate. See how it works here: https://monakaidev.blogspot.com/2021/02/translateapp.html
 ## How to use
 TranslateApp is like any translating application. Here is how you can use it.
 
