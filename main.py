@@ -97,13 +97,13 @@ class App:
         translate_str = self.translate_text.get("1.0", END)
 
         try:
-            html = request.urlopen(f"https://translate.googleapis.com/translate_a/single?client=gtx&sl={language_from}&tl={language_to}&dt=t&q={parse.quote_plus(translate_str)}").read().decode("utf8")
+            json_output = request.urlopen(f"https://translate.googleapis.com/translate_a/single?client=gtx&sl={language_from}&tl={language_to}&dt=t&q={parse.quote_plus(translate_str)}").read().decode("utf8")
         except:
             showinfo("An error occurred", "An error occurred. Please try again later.")
         
         translated_text = ""
         
-        for sentence in json.loads(html)[0]:
+        for sentence in json.loads(json_output)[0]:
             translated_text += sentence[0]
             
         self.translated_text["state"] = "normal"
