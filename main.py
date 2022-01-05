@@ -1,16 +1,11 @@
-import json
-from tkinter import *
+from json import loads
+from tkinter import Tk, Label, Button, Entry, Text, PhotoImage, END, OptionMenu, StringVar
 import tkinter.font as tkFont
 from urllib import request, parse
 from tkinter.messagebox import showinfo
-import os
-
-if os.environ.get('DISPLAY','') == '':
-    print('No display found. Using :0.0')
-    os.environ.__setitem__('DISPLAY', ':0.0')
 
 languages_f = open("./languages.json", "r")
-languages = json.loads(languages_f.read())
+languages = loads(languages_f.read())
 languages_f.close()
 
 class App:
@@ -35,11 +30,18 @@ class App:
         self.app_title["text"] = "Translate text"
         self.app_title.place(x=10,y=10,width=320,height=44)
 
-        self.translate_from_entry=Entry(root)
-        self.translate_from_entry["bg"] = "#ffffff"
-        self.translate_from_entry["borderwidth"] = "4px"
+        # self.translate_from_entry=Entry(root)
+        # self.translate_from_entry["bg"] = "#ffffff"
+        # self.translate_from_entry["borderwidth"] = "4px"
+        # self.translate_from_entry["font"] = self.ft
+        # self.translate_from_entry["fg"] = "#000000"
+        # self.translate_from_entry["justify"] = "left"
+        # self.translate_from_entry.place(x=10,y=100,width=179,height=30)
+
+        self.translate_from_var = StringVar(root)
+        self.translate_from_var.set("Auto") # default value
+        self.translate_from_entry=OptionMenu(root, self.translate_from_var, *list(languages.keys()))
         self.translate_from_entry["font"] = self.ft
-        self.translate_from_entry["fg"] = "#000000"
         self.translate_from_entry["justify"] = "left"
         self.translate_from_entry.place(x=10,y=100,width=179,height=30)
 
@@ -50,11 +52,10 @@ class App:
         self.translate_from_label["text"] = "Translate from:"
         self.translate_from_label.place(x=10,y=70,width=98,height=30)
 
-        self.translate_to_entry=Entry(root)
-        self.translate_to_entry["bg"] = "#ffffff"
-        self.translate_to_entry["borderwidth"] = "4px"
+        self.translate_to_var = StringVar(root)
+        self.translate_to_var.set("English") # default value
+        self.translate_to_entry=OptionMenu(root, self.translate_to_var, *list(languages.keys())[:-1])
         self.translate_to_entry["font"] = self.ft
-        self.translate_to_entry["fg"] = "#000000"
         self.translate_to_entry["justify"] = "left"
         self.translate_to_entry.place(x=240,y=100,width=175,height=30)
 
@@ -90,25 +91,18 @@ class App:
         self.translate_button["command"] = self.translate_button_command
     
     def translate_button_command(self):
-        if self.translate_from_entry.get() not in languages.keys():
-            showinfo("Invalid language", f"{self.translate_from_entry.get()} is not a valid language")
-            return
-        if self.translate_to_entry.get() not in languages.keys():
-            showinfo("Invalid language", f"{self.translate_to_entry.get()} is not a valid language")
-            return
-
-        language_from = languages[self.translate_from_entry.get()]
-        language_to = languages[self.translate_to_entry.get()]
+        language_from = languages[self.translate_from_var.get()]
+        language_to = languages[self.translate_to_var.get()]
         translate_str = self.translate_text.get("1.0", END)
 
         try:
-            json_output = request.urlopen(f"https://translate.googleapis.com/translate_a/single?client=gtx&sl={language_from}&tl={language_to}&dt=t&q={parse.quote_plus(translate_str)}").read().decode("utf8")
+            html = request.urlopen(f"https://translate.googleapis.com/translate_a/single?client=gtx&sl={language_from}&tl={language_to}&dt=t&q={parse.quote_plus(translate_str)}").read().decode("utf8")
         except:
             showinfo("An error occurred", "An error occurred. Please try again later.")
         
         translated_text = ""
         
-        for sentence in json.loads(json_output)[0]:
+        for sentence in loads(html)[0]:
             translated_text += sentence[0]
             
         self.translated_text["state"] = "normal"
